@@ -18,6 +18,8 @@ export default function Nodemailer(
         to: identifier,
         from: provider.from,
         subject: `Accede a ${host}`,
+        // Evita que Brevo reescriba enlaces de autenticación de un solo uso.
+        headers: { "X-Mailin-track-clicks": "0" },
         text: `Accede a tu cuenta utilizando este enlace:\n${url}\n\nSi no lo has solicitado, ignora este mensaje.`,
         html: `<p>Accede a tu cuenta:</p><p><a href="${url}">Iniciar sesión</a></p><p>Si no lo has solicitado, ignora este mensaje.</p>`,
       });
