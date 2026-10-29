@@ -12,8 +12,21 @@ export async function GET(request: NextRequest) {
   const mode = searchParams.get("hub.mode");
   const token = searchParams.get("hub.verify_token");
   const challenge = searchParams.get("hub.challenge");
+  const configuredToken = process.env.WEBHOOK_VERIFY_TOKEN;
+  const hasValidToken = Boolean(configuredToken) && token === configuredToken;
+  const isValid = mode === "subscribe" && hasValidToken && challenge !== null;
 
-  if (mode === "subscribe" && token === process.env.WEBHOOK_VERIFY_TOKEN) {
+  // Diagnostic metadata only: never log the verify token, challenge, URL or headers.
+  console.info("[Webhook Verify]", {
+    modeValid: mode === "subscribe",
+    tokenProvided: token !== null,
+    tokenConfigured: Boolean(configuredToken),
+    tokenMatches: hasValidToken,
+    challengeProvided: challenge !== null,
+    result: isValid ? 200 : 403,
+  });
+
+  if (isValid) {
     return new NextResponse(challenge, { status: 200 });
   }
 
